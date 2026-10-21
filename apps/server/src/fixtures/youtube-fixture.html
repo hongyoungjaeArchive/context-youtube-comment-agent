@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[로컬 픽스처] 가짜 YouTube 댓글 페이지</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; margin: 0; background: #0f0f0f; color: #f1f1f1; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid #272727; }
+  .badge { background: #c0392b; color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px; }
+  .player { aspect-ratio: 16/9; background: #222; display: grid; place-items: center; color: #888; border-radius: 12px; }
+  .spacer { height: 900px; }
+  #simplebox-placeholder { cursor: text; padding: 8px 0; border-bottom: 1px solid #555; color: #aaa; }
+  #contenteditable-root { min-height: 24px; padding: 8px 0; border-bottom: 2px solid #f1f1f1; outline: none; }
+  #submit-button button { background: #3ea6ff; color: #0f0f0f; border: 0; border-radius: 18px; padding: 8px 16px; font-weight: 600; }
+  #submit-button button:disabled { background: #333; color: #777; }
+  ytd-comment-thread-renderer { display: block; padding: 12px 0; }
+  #author-text { font-weight: 600; font-size: 13px; }
+  #avatar-btn { width: 32px; height: 32px; border-radius: 50%; background: #7a5af8; border: 0; }
+</style>
+</head>
+<body>
+<header>
+  <strong>YouTube <span class="badge">로컬 픽스처 · 실제 YouTube 아님</span></strong>
+  <div id="auth"></div>
+</header>
+<main>
+  <div class="player">테스트 영상 플레이어 자리 (픽스처)</div>
+  <h1 id="title">[픽스처] 본인 소유 테스트 영상</h1>
+  <div class="spacer"></div>
+  <ytd-comments id="comments">
+    <h2>댓글</h2>
+    <div id="simplebox"></div>
+    <div id="thread-list">
+      <ytd-comment-thread-renderer><div id="author-text">@다른시청자</div><div id="content-text">기존 댓글입니다.</div></ytd-comment-thread-renderer>
+    </div>
+  </ytd-comments>
+</main>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var mode = params.get('mode') || 'ok';
+  var auth = document.getElementById('auth');
+  if (mode === 'signedout') {
+    auth.innerHTML = '<ytd-button-renderer><a aria-label="로그인" href="#signin">로그인</a></ytd-button-renderer>';
+  } else if (mode === 'lateavatar') {
+    setTimeout(function () { auth.innerHTML = '<button id="avatar-btn" aria-label="계정 메뉴"></button>'; }, 1500);
+  } else {
+    auth.innerHTML = '<button id="avatar-btn" aria-label="계정 메뉴"></button>';
+  }
+  if (mode === 'captcha') {
+    document.body.insertAdjacentHTML('afterbegin', '<form id="captcha-form">보안 확인</form>');
+  }
+  var simplebox = document.getElementById('simplebox');
+  if (mode !== 'nocomments' && mode !== 'signedout') {
+    simplebox.innerHTML = '<div id="simplebox-placeholder" tabindex="0">댓글 추가...</div>';
+    document.getElementById('simplebox-placeholder').addEventListener('click', function () {
+      simplebox.innerHTML =
+        '<div id="contenteditable-root" contenteditable="true" aria-label="댓글 추가..."></div>' +
+        '<div id="submit-button"><button disabled>댓글</button></div>';
+      var editor = document.getElementById('contenteditable-root');
+      var btn = document.querySelector('#submit-button button');
+      editor.focus();
+      editor.addEventListener('input', function () { btn.disabled = editor.innerText.trim().length === 0; });
+      btn.addEventListener('click', function () {
+        var text = editor.innerText.trim();
+        if (mode === 'hang') { btn.disabled = true; return; }
+        var delay = mode === 'slow' ? 3000 : 600;
+        setTimeout(function () {
+          var t = document.createElement('ytd-comment-thread-renderer');
+          t.innerHTML = '<div id="author-text">@테스트계정</div><div id="content-text"></div>';
+          t.querySelector('#content-text').textContent = text;
+          var list = document.getElementById('thread-list');
+          list.insertBefore(t, list.firstChild);
+          editor.innerText = '';
+        }, delay);
+      });
+    });
+  } else if (mode === 'nocomments') {
+    simplebox.innerHTML = '<p>댓글이 사용 중지되었습니다.</p>';
+  }
+})();
+</script>
+</body>
+</html>

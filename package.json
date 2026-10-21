@@ -1,0 +1,32 @@
+{
+  "name": "context-marketing-agent",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "packages/shared",
+    "apps/server",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "npm run build -w @context/shared && npm run build -w @context/server && npm run build -w @context/web",
+    "typecheck": "npm run typecheck -w @context/shared && npm run typecheck -w @context/server && npm run typecheck -w @context/web",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "dev:server": "npm run dev -w @context/server",
+    "dev:web": "npm run dev -w @context/web",
+    "start": "node apps/server/dist/index.js",
+    "secret-scan": "node scripts/secret-scan.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^4.1.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12"
+  }
+}

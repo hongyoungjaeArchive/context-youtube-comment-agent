@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+data/
+artifacts/
+browser-profiles/
+.playwright/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+
+# 릴스 캡처 프레임·SDD 작업 공간
+.reel/
+.superpowers/
